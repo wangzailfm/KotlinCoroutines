@@ -32,11 +32,9 @@ object RetrofitHelper {
             addInterceptor(loggingInterceptor)
         }
 
-        return Retrofit.Builder()
-                .baseUrl(url)
-                .client(okHttpClientBuilder.build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
+        return RetrofitBuild(url = url,
+                client = okHttpClientBuilder.build(),
+                gsonFactory = GsonConverterFactory.create()).retrofit
     }
 
     /**
@@ -45,4 +43,12 @@ object RetrofitHelper {
     private fun <T> getService(url: String, service: Class<T>): T =
             create(url).create(service)
 
+}
+
+class RetrofitBuild(url: String, client: OkHttpClient, gsonFactory: GsonConverterFactory) {
+    val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl(url)
+            .client(client)
+            .addConverterFactory(gsonFactory)
+            .build()
 }
