@@ -73,12 +73,10 @@ class MainActivity : AppCompatActivity() {
                 // Get async result
                 val await = async?.await()
                 // Set TextView content
-                text.text.apply {
-                    when (await) {
-                        is String -> await.toString()
-                        is LoginResponse -> await.result.toString()
-                        else -> RESULT_NULL
-                    }
+                text.text = when (await) {
+                    is String -> await
+                    is LoginResponse -> await.result.toString()
+                    else -> RESULT_NULL
                 }
             }
         }
