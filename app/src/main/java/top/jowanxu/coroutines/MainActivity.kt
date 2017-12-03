@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                             this?.run {
                                 if (!isCanceled) {
                                     // cancel request
-                                    NonCancellable.cancel()
+                                    cancel()
                                 }
                                 // Assignment
                                 getUserLogin()
@@ -73,10 +73,12 @@ class MainActivity : AppCompatActivity() {
                 // Get async result
                 val await = async?.await()
                 // Set TextView content
-                text.text = when (await) {
-                    is String -> await
-                    is LoginResponse -> await.result.toString()
-                    else -> RESULT_NULL
+                text.apply {
+                    text = when (await) {
+                        is String -> await
+                        is LoginResponse -> await.result.toString()
+                        else -> RESULT_NULL
+                    }
                 }
             }
         }
