@@ -4,11 +4,14 @@ import RetrofitHelper
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import asyncRequestSuspend
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import top.jowanxu.coroutines.bean.LoginResponse
 
 class MainActivity : AppCompatActivity() {
@@ -72,9 +75,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 // Get async result
                 val await = async?.await()
-                await?:let {
-
-                }
                 // Set TextView content
                 text.apply {
                     text = when (await) {
@@ -83,6 +83,25 @@ class MainActivity : AppCompatActivity() {
                         else -> RESULT_NULL
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * 异步
+     */
+    fun asyncRequestMethod() {
+        val async = async {
+            asyncRequestSuspend<Call<LoginResponse>> { cont ->
+                getUserLogin().enqueue(object : Callback<LoginResponse> {
+                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                        cont.resume(call)
+                    }
+
+                    override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                        cont.resumeWithException(t)
+                    }
+                })
             }
         }
     }

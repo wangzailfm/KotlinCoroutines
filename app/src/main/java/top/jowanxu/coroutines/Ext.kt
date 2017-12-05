@@ -13,26 +13,6 @@ fun loge(tag: String, content: String?) {
     Log.e(tag, content ?: tag)
 }
 
-fun getUserLogin() = RetrofitHelper
-        .retrofitService
-        .userLogin("", "")
-
-suspend fun <T> requestDataSuspend(block: (Continuation<T>) -> Unit) = suspendCoroutine<T> {
+suspend fun <T> asyncRequestSuspend(block: (Continuation<T>) -> Unit) = suspendCoroutine<T> {
     block(it)
-}
-
-fun get() {
-    val async = async {
-        requestDataSuspend<Call<LoginResponse>> { cont ->
-            getUserLogin().enqueue(object : Callback<LoginResponse> {
-                override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                    cont.resume(call)
-                }
-
-                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                    cont.resumeWithException(t)
-                }
-            })
-        }
-    }
 }
