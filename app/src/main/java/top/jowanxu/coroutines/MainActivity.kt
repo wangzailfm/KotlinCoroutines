@@ -72,6 +72,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 // Get async result
                 val await = async?.await()
+                await?:let {
+
+                }
                 // Set TextView content
                 text.apply {
                     text = when (await) {
