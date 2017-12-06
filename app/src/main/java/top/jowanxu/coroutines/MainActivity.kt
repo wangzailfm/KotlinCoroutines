@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
+import loge
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                     delay(2000)
                     try {
                         // Request
-                        userLogin.run {
+                        /*userLogin.run {
                             // If Call not empty
                             this?.run {
                                 if (!isCanceled) {
@@ -67,7 +68,33 @@ class MainActivity : AppCompatActivity() {
                                 // If Call empty
                                 getUserLogin()
                             }
-                        }.execute().body()
+                        }.execute().body()*/
+                            asyncRequestSuspend<LoginResponse> { cont ->
+                                userLogin.run {
+                                    // If Call not empty
+                                    this?.run {
+                                        if (!isCanceled) {
+                                            // cancel request
+                                            cancel()
+                                        }
+                                        // Assignment
+                                        getUserLogin()
+                                    } ?: run {
+                                        // If Call empty
+                                        getUserLogin()
+                                    }
+                                }.enqueue(object : Callback<LoginResponse> {
+                                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                                        loge("TAG", "123123123213123")
+                                        cont.resume(response.body())
+                                        loge("TAG", "123123123213123444444")
+                                    }
+
+                                    override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                                        cont.resumeWithException(t)
+                                    }
+                                })
+                            }
                     } catch (e: Throwable) {
                         // Return Throwable toString
                         e.toString()
@@ -83,25 +110,6 @@ class MainActivity : AppCompatActivity() {
                         else -> RESULT_NULL
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * 异步
-     */
-    fun asyncRequestMethod() {
-        val async = async {
-            asyncRequestSuspend<Call<LoginResponse>> { cont ->
-                getUserLogin().enqueue(object : Callback<LoginResponse> {
-                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                        cont.resume(call)
-                    }
-
-                    override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                        cont.resumeWithException(t)
-                    }
-                })
             }
         }
     }
