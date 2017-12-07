@@ -77,8 +77,8 @@ class MainActivity : AppCompatActivity() {
                     // Set TextView content
                     text.apply {
                         text = when (await) {
-                            is String -> "async::$await"
-                            is LoginResponse -> "async::${await.result}"
+                            is String -> "sync::$await"
+                            is LoginResponse -> "sync::${await.result}"
                             else -> RESULT_NULL
                         }
                     }
@@ -130,8 +130,8 @@ class MainActivity : AppCompatActivity() {
                 // Set TextView content
                 text.apply {
                     text = when (await) {
-                        is String -> "sync::$await"
-                        is LoginResponse -> "sync::${await.result}"
+                        is String -> "async::$await"
+                        is LoginResponse -> "async::${await.result}"
                         else -> RESULT_NULL
                     }
                 }
