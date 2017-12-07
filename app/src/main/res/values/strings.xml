@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Coroutines</string>
     <string name="action_settings">Settings</string>
+    <string name="sync">SYNC</string>
+    <string name="async">ASYNC</string>
 </resources>

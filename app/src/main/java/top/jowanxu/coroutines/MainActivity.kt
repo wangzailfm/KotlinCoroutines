@@ -9,7 +9,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
-import loge
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,7 +43,48 @@ class MainActivity : AppCompatActivity() {
      */
     private val onClickListener = View.OnClickListener {
         when (it.id) {
-            R.id.fab -> async(UI) {
+            R.id.syncOperation -> {
+                async(UI) {
+                    async?.apply {
+                        if (isActive) {
+                            cancelAndJoin()
+                        }
+                    }
+                    async = async(CommonPool) {
+                        delay(2000)
+                        try {
+                            // Request
+                            userLogin.run {
+                                // If Call not empty
+                                this?.run {
+                                    if (!isCanceled) {
+                                        // cancel request
+                                        cancel()
+                                    }
+                                    // Assignment
+                                    getUserLogin()
+                                } ?: run {
+                                    // If Call empty
+                                    getUserLogin()
+                                }
+                            }.execute().body()
+                        } catch (t: Throwable) {
+                            t.toString()
+                        }
+                    }
+                    // Get sync result
+                    val await = async?.await()
+                    // Set TextView content
+                    text.apply {
+                        text = when (await) {
+                            is String -> "async::$await"
+                            is LoginResponse -> "async::${await.result}"
+                            else -> RESULT_NULL
+                        }
+                    }
+                }
+            }
+            R.id.asyncOperation -> async(UI) {
                 async?.apply {
                     if (isActive) {
                         cancelAndJoin()
@@ -54,47 +94,32 @@ class MainActivity : AppCompatActivity() {
                     // Delay two second，Simulate multiple request data
                     delay(2000)
                     try {
-                        // Request
-                        /*userLogin.run {
-                            // If Call not empty
-                            this?.run {
-                                if (!isCanceled) {
-                                    // cancel request
-                                    cancel()
+                        // Async Request, wait resume
+                        asyncRequestSuspend<LoginResponse> { cont ->
+                            userLogin.run {
+                                // If Call not empty
+                                this?.run {
+                                    if (!isCanceled) {
+                                        // cancel request
+                                        cancel()
+                                    }
+                                    // Assignment
+                                    getUserLogin()
+                                } ?: run {
+                                    // If Call empty
+                                    getUserLogin()
                                 }
-                                // Assignment
-                                getUserLogin()
-                            } ?: run {
-                                // If Call empty
-                                getUserLogin()
-                            }
-                        }.execute().body()*/
-                            asyncRequestSuspend<LoginResponse> { cont ->
-                                userLogin.run {
-                                    // If Call not empty
-                                    this?.run {
-                                        if (!isCanceled) {
-                                            // cancel request
-                                            cancel()
-                                        }
-                                        // Assignment
-                                        getUserLogin()
-                                    } ?: run {
-                                        // If Call empty
-                                        getUserLogin()
-                                    }
-                                }.enqueue(object : Callback<LoginResponse> {
-                                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                                        loge("TAG", "123123123213123")
-                                        cont.resume(response.body())
-                                        loge("TAG", "123123123213123444444")
-                                    }
+                            }.enqueue(object : Callback<LoginResponse> {
+                                override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                                    // resume
+                                    cont.resume(response.body())
+                                }
 
-                                    override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                                        cont.resumeWithException(t)
-                                    }
-                                })
-                            }
+                                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                                    cont.resumeWithException(t)
+                                }
+                            })
+                        }
                     } catch (e: Throwable) {
                         // Return Throwable toString
                         e.toString()
@@ -105,8 +130,8 @@ class MainActivity : AppCompatActivity() {
                 // Set TextView content
                 text.apply {
                     text = when (await) {
-                        is String -> await
-                        is LoginResponse -> await.result.toString()
+                        is String -> "sync::$await"
+                        is LoginResponse -> "sync::${await.result}"
                         else -> RESULT_NULL
                     }
                 }
@@ -119,7 +144,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener(onClickListener)
+        syncOperation.setOnClickListener(onClickListener)
+        asyncOperation.setOnClickListener(onClickListener)
     }
 
 }
