@@ -1,11 +1,10 @@
 package top.jowanxu.coroutines
 
 import RetrofitHelper
+import android.app.Activity
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import asyncRequestSuspend
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
@@ -14,7 +13,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import top.jowanxu.coroutines.bean.LoginResponse
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
     companion object {
         private const val USERNAME = "wangzailll"
         private const val PASSWORD = "wangzailll"
@@ -142,7 +141,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
 
         syncOperation.setOnClickListener(onClickListener)
         asyncOperation.setOnClickListener(onClickListener)
