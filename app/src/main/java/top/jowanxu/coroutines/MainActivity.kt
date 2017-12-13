@@ -53,19 +53,17 @@ class MainActivity : Activity() {
                         delay(2000)
                         try {
                             // Request
-                            userLogin.run {
+                            userLogin?.run {
                                 // If Call not empty
-                                this?.run {
-                                    if (!isCanceled) {
-                                        // cancel request
-                                        cancel()
-                                    }
-                                    // Assignment
-                                    getUserLogin()
-                                } ?: run {
-                                    // If Call empty
-                                    getUserLogin()
+                                if (!isCanceled) {
+                                    // cancel request
+                                    cancel()
                                 }
+                                // Assignment
+                                getUserLogin()
+                            } ?: run {
+                                // If Call empty
+                                getUserLogin()
                             }.execute().body()
                         } catch (t: Throwable) {
                             t.toString()
@@ -95,19 +93,17 @@ class MainActivity : Activity() {
                     try {
                         // Async Request, wait resume
                         asyncRequestSuspend<LoginResponse> { cont ->
-                            userLogin.run {
+                            userLogin?.run {
                                 // If Call not empty
-                                this?.run {
-                                    if (!isCanceled) {
-                                        // cancel request
-                                        cancel()
-                                    }
-                                    // Assignment
-                                    getUserLogin()
-                                } ?: run {
-                                    // If Call empty
-                                    getUserLogin()
+                                if (!isCanceled) {
+                                    // cancel request
+                                    cancel()
                                 }
+                                // Assignment
+                                getUserLogin()
+                            }?: run {
+                                // If Call empty
+                                getUserLogin()
                             }.enqueue(object : Callback<LoginResponse> {
                                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                                     // resume

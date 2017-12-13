@@ -3,6 +3,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import top.jowanxu.coroutines.BuildConfig
 import java.util.concurrent.TimeUnit
 
 object RetrofitHelper {
@@ -18,18 +19,19 @@ object RetrofitHelper {
      * 创建Retrofit
      */
     private fun create(url: String):Retrofit {
-        //新建log拦截器
-        val loggingInterceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
-            loge(TAG,  CONTENT_PRE + it)
-        })
-        //日志显示级别
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         // okHttpClientBuilder
-        val okHttpClientBuilder = with(OkHttpClient().newBuilder()) {
+        val okHttpClientBuilder = OkHttpClient().newBuilder().apply {
             connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
-            //OkHttp进行添加拦截器loggingInterceptor
-            addInterceptor(loggingInterceptor)
+            if (BuildConfig.DEBUG) {
+                //OkHttp进行添加拦截器loggingInterceptor
+                addInterceptor(HttpLoggingInterceptor(HttpLoggingInterceptor.Logger {
+                    loge(TAG,  CONTENT_PRE + it)
+                }).apply {
+                    //日志显示级别
+                    level = HttpLoggingInterceptor.Level.BODY
+                })
+            }
         }
 
         return RetrofitBuild(url = url,
